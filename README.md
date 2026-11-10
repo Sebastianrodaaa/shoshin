@@ -68,7 +68,7 @@ The table is regenerated from `results/runs/*.json` by `make repro`. Small-scale
 <!-- results:end -->
 
 The hypothesis fails. Gated learning spends 14% of the steps and beats random skipping with the same budget, but it
-ends 7.2 points behind the full recipe (the bar was 2) and runs at about 0.2 moves a second (the bar was 1).
+ends 7.2 points behind the full recipe (the bar was 2) and runs at 0.09 moves a second in the evaluation, 0.19 with the box to itself (the bar was 1).
 
 | | |
 | --- | --- |
