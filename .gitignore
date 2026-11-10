@@ -7,8 +7,6 @@ __pycache__/
 /games
 data/ARC-AGI-3/**/*.jsonl
 !data/ARC-AGI-3/data/training/ft09/01f76fc7-c612-4006-8d08-c13ed0cb91de.recording.jsonl
-!data/ARC-AGI-3/data/training/cn04/14a28e82-4f24-4cb6-8810-39d70b9d0b4b.recording.jsonl
 docs/media/*.mp4
 .venv/
 results/runs/
-results/demo/

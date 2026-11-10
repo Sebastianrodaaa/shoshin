@@ -25,7 +25,7 @@ repro:  ## tables, summary and plots from the cached per-transition logs in resu
 	$(PY) scripts/plots.py
 
 demo:   ## the traced real run the dashboard replays
-	$(PY) -m shoshin.run --games cn04 --arms gated --seeds 0 --transitions 40 --trace --out results/demo
+	$(PY) -m shoshin.run --games ft09 --arms gated --seeds 0 --transitions 40 --trace --out results/demo
 
 dashboard:
 	$(PY) app/server.py

@@ -53,10 +53,11 @@ def main():
             mark("play yourself: a human takes the arrow keys and tries to surprise it")
             page.click("#btn-play")
             page.wait_for_function("document.getElementById('caption').textContent.startsWith('your move')", timeout=120000)
-            for key in ["ArrowRight", "ArrowRight", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowUp", "ArrowRight",
-                        "ArrowDown"]:
-                page.keyboard.press(key)
-                page.wait_for_timeout(900)
+            for key in ["ArrowRight", "ArrowDown", "ArrowDown", "ArrowLeft", "ArrowUp", "ArrowRight"]:
+                before = page.text_content("#m-move")
+                page.keyboard.press(key)   # each move waits for the real CPU learning from the previous one
+                page.wait_for_function(f"document.getElementById('m-move').textContent !== {before!r}", timeout=600000)
+                page.wait_for_timeout(700)
             page.screenshot(path=str(MEDIA / "play.png"))
             mark("end card")
             page.evaluate(END_CARD)
@@ -77,6 +78,7 @@ def main():
                     "[b][p]paletteuse=dither=bayer", str(gif)], check=True)
     for name in ("flare", "ledger", "meter", "play"):
         bw(MEDIA / f"{name}.png", SHOTS / f"{name}.png")
+    shutil.copy(SHOTS / "meter.png", SHOTS / "hero.png")
     lines = ["# Shot log (real run, recorded by scripts/record_demo.py)", "",
              "Source: `shoshin-demo.mp4`, 1920x1080, 30 fps, no audio. Captions are on screen.", "",
              "| from (s) | to (s) | shot |", "| --- | --- | --- |"]

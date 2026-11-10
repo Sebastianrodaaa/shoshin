@@ -17,8 +17,7 @@ Two real recordings, so the tests and `make demo` run without a download:
 
 | game | recording | size | held out by |
 | --- | --- | --- | --- |
-| ft09 | `01f76fc7-c612-4006-8d08-c13ed0cb91de.recording.jsonl` | 3.4 MB | `fold3` (tests) |
-| cn04 | `14a28e82-4f24-4cb6-8810-39d70b9d0b4b.recording.jsonl` | 6.6 MB | `fold2` (dashboard demo) |
+| ft09 | `01f76fc7-c612-4006-8d08-c13ed0cb91de.recording.jsonl` | 3.4 MB | `fold3` (tests and dashboard demo) |
 
 ## The rest
 
