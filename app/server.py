@@ -56,6 +56,7 @@ class Play:
         if kind not in self.available + [0] or (kind == 6 and not (0 <= x < 64 and 0 <= y < 64)):
             raise ValueError("unavailable action")
         self.lock.acquire()
+        learning = False   # once the learner thread owns the lock it releases it; every other exit releases here
         try:
             if kind == 0 or self.state in ("GAME_OVER", "WIN"):
                 self._observe(self.env.reset())
@@ -69,12 +70,15 @@ class Play:
             self.moves += 1
             wrong, scored = surprise(prev, pred, self.frame)
             steps = budget(int(wrong.sum()), int(scored.sum()))
-        except Exception:
-            self.lock.release()
-            raise
-        threading.Thread(target=self._learn, args=(item, steps), daemon=True).start()
-        return self.state_dict(prev=encode(prev), pred=encode(pred), wrong=int(wrong.sum()), scored=int(scored.sum()),
-                               acc=changed_accuracy(prev, pred, self.frame), update=steps, steps=self.world.steps + steps)
+            out = self.state_dict(prev=encode(prev), pred=encode(pred), wrong=int(wrong.sum()), scored=int(scored.sum()),
+                                  acc=changed_accuracy(prev, pred, self.frame), update=steps,
+                                  steps=self.world.steps + steps)
+            threading.Thread(target=self._learn, args=(item, steps), daemon=True).start()
+            learning = True
+            return out
+        finally:
+            if not learning:
+                self.lock.release()
 
     def _learn(self, item, steps):
         try:
