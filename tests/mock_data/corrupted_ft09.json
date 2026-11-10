@@ -1,0 +1,7 @@
+{
+  "mock": true,
+  "note": "MOCK FIXTURE for test_shoshin.py only. Never used for results, README numbers or the dashboard. Takes real transition t of the first ft09 recording and shifts the colour of a block x block square of its real next frame by one, so the model's committed prediction is wrong there.",
+  "game": "ft09",
+  "t": 9,
+  "block": [20, 20, 4]
+}

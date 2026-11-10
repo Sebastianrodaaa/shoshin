@@ -1,0 +1,2 @@
+# After WARC's own pins (third_party/WARC/requirements.txt, torch from the CPU index: see `make setup`).
+playwright==1.65.0

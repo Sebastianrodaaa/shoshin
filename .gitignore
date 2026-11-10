@@ -1,0 +1,10 @@
+__pycache__/
+*.pyc
+.env
+.env.*
+/third_party
+/models
+/games
+data/ARC-AGI-3/**/*.jsonl
+!data/ARC-AGI-3/data/training/ft09/01f76fc7-c612-4006-8d08-c13ed0cb91de.recording.jsonl
+.venv/

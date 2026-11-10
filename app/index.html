@@ -1,0 +1,249 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>shoshin</title>
+<style>
+@font-face { font-family: "Silkscreen"; src: url("silkscreen.ttf") format("truetype"); }
+:root { --paper: #f4eee2; --card: #fbf8f1; --ink: #141210; --soft: #8a8173; --hot: #ff1f8f; --lilac: #d9c8f0; }
+* { box-sizing: border-box; }
+html, body { margin: 0; background: var(--paper); color: var(--ink);
+  font: 15px/1.35 "Helvetica Neue", Helvetica, Arial, sans-serif; }
+.pix { font-family: "Silkscreen", "Helvetica Neue", Arial, sans-serif; letter-spacing: .02em; }
+main { display: grid; grid-template-columns: 1fr 230px; grid-template-rows: auto auto auto auto; gap: 18px;
+  padding: 22px 28px; min-height: 100vh; max-width: 1920px; margin: 0 auto; align-content: start; align-items: start; }
+header { grid-column: 1 / 3; display: flex; align-items: baseline; gap: 22px; }
+header h1 { margin: 0; font-size: 44px; font-weight: 400; }
+header .sub { color: var(--soft); font-size: 14px; }
+header .mode { margin-left: auto; display: flex; gap: 8px; }
+button { font: inherit; font-size: 13px; border: 1px solid var(--ink); background: var(--card); color: var(--ink);
+  border-radius: 999px; padding: 6px 14px; cursor: pointer; }
+button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+button:focus-visible { outline: 3px solid var(--hot); outline-offset: 2px; }
+.panels { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; }
+.panel { background: var(--card); border: 1px solid #d8cfbf; border-radius: 18px; padding: 14px; }
+.panel h2 { margin: 0 0 8px; font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: .12em;
+  display: flex; justify-content: space-between; }
+.panel h2 span { color: var(--soft); font-weight: 400; }
+canvas.board { width: 100%; aspect-ratio: 1; display: block; image-rendering: pixelated; border-radius: 8px; }
+#real { cursor: crosshair; }
+.rail { grid-row: 2 / 5; grid-column: 2; display: flex; flex-direction: column; gap: 14px; }
+.meter { background: var(--card); border: 1px solid #d8cfbf; border-radius: 18px; padding: 14px; }
+.meter .label { font-size: 11px; text-transform: uppercase; letter-spacing: .12em; color: var(--soft); }
+.meter .big { font-size: 34px; line-height: 1.1; margin: 4px 0; }
+.bar { height: 160px; display: flex; gap: 10px; align-items: flex-end; margin: 10px 0 20px; }
+.bar div { flex: 1; border-radius: 6px 6px 2px 2px; position: relative; min-height: 2px; transition: height .25s; }
+.bar .full { background: repeating-linear-gradient(45deg, #cbbfab 0 4px, #e5dccd 4px 8px); }
+.bar .gate { background: var(--hot); }
+.bar small { position: absolute; bottom: -18px; left: 0; right: 0; text-align: center; font-size: 10px; color: var(--soft); }
+.caption { grid-column: 1; font-size: 26px; min-height: 36px; }
+.caption b { color: var(--hot); font-weight: 400; }
+.ledger { grid-column: 1; background: var(--card); border: 1px solid #d8cfbf; border-radius: 18px; padding: 12px 14px; }
+.ledger h2 { margin: 0 0 8px; font-size: 11px; text-transform: uppercase; letter-spacing: .12em; }
+.ticks { display: flex; flex-wrap: wrap; gap: 8px; min-height: 64px; align-content: flex-start; }
+.tick { border-radius: 999px; padding: 5px 12px; font-size: 13px; background: var(--lilac); }
+.tick.new { background: var(--hot); color: #fff; }
+.tick.seen { background: #ebe4d6; color: var(--soft); }
+.scrub { display: flex; gap: 6px; height: 26px; align-items: flex-end; }
+.scrub i { flex: 1; height: 100%; background: #e3dacb; border-radius: 2px; }
+.scrub i.on { background: var(--hot); }
+.scrub i.ok { background: var(--lilac); }
+.scrub i.now { outline: 2px solid var(--ink); }
+.help { font-size: 12px; color: var(--soft); }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1 class="pix">shoshin</h1>
+    <div class="sub" id="sub">it has never seen this game. watch it learn.</div>
+    <div class="mode" role="group" aria-label="mode">
+      <button id="btn-replay" aria-pressed="true">replay real run</button>
+      <button id="btn-play" aria-pressed="false">play yourself</button>
+    </div>
+  </header>
+  <section class="panels">
+    <div class="panel"><h2>the game <span id="t-real">real frame</span></h2>
+      <canvas id="real" class="board" width="64" height="64" aria-label="real game frame"></canvas></div>
+    <div class="panel"><h2>its guess <span>committed before the move</span></h2>
+      <canvas id="pred" class="board" width="64" height="64" aria-label="predicted next frame"></canvas></div>
+    <div class="panel"><h2>the surprise <span id="t-surp">changed cells it got wrong</span></h2>
+      <canvas id="surp" class="board" width="64" height="64" aria-label="surprise map"></canvas></div>
+  </section>
+  <aside class="rail" aria-label="compute meter">
+    <div class="meter"><div class="label">gradient steps</div>
+      <div class="big pix" id="m-gate">0</div><div class="help">shoshin, surprise-gated</div>
+      <div class="big pix" id="m-full" style="color:var(--soft)">0</div><div class="help">full WARC recipe: 20 after every move</div>
+      <div class="bar"><div class="full" id="b-full"><small>full</small></div><div class="gate" id="b-gate"><small>gated</small></div></div>
+    </div>
+    <div class="meter"><div class="label">share of full compute</div><div class="big pix" id="m-share">-</div></div>
+    <div class="meter"><div class="label">move</div><div class="big pix" id="m-move">0</div>
+      <div class="label">changed-cell accuracy</div><div class="big pix" id="m-acc">-</div></div>
+    <div class="meter help" id="m-src">loading the real run...</div>
+  </aside>
+  <div class="caption" id="caption" aria-live="polite">&nbsp;</div>
+  <section class="ledger" aria-label="rule ledger"><h2>rule ledger <span class="help">(proxy: action + colour change)</span></h2>
+    <div class="ticks" id="ticks"></div>
+    <div class="scrub" id="scrub" aria-hidden="true"></div>
+  </section>
+</main>
+<script>
+const PAL = ["#FFFFFF","#CCCCCC","#999999","#666666","#333333","#000000","#E53AA3","#FF7BCC",
+             "#F93C31","#1E93FF","#88D8F1","#FFDC00","#FF851B","#921231","#4FCC30","#A356D6"].map(rgb);
+const PAPER = rgb("#f4eee2"), HOT = rgb("#ff1f8f"), LILAC = rgb("#d9c8f0");
+function rgb(h) { return [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16)); }
+const $ = id => document.getElementById(id);
+const dec = s => Uint8Array.from(s, c => parseInt(c, 16));
+const ctx = Object.fromEntries(["real", "pred", "surp"].map(k => [k, $(k).getContext("2d")]));
+const heat = new Float32Array(4096), cool = new Float32Array(4096);
+let prevSurp = null, mode = "replay", demo = null, timer = null, play = null, busy = false;
+
+function draw(name, cells) {
+  const img = ctx[name].createImageData(64, 64);
+  for (let i = 0; i < 4096; i++) img.data.set([...PAL[cells[i]], 255], i * 4);
+  ctx[name].putImageData(img, 0, 0);
+}
+function mix(a, b, t) { return a.map((v, i) => v + (b[i] - v) * t); }
+function drawSurprise() {
+  const img = ctx.surp.createImageData(64, 64);
+  for (let i = 0; i < 4096; i++) {
+    let c = PAPER;
+    if (prevSurp) { const g = PAL[prevSurp[i]].reduce((a, b) => a + b) / 3; c = mix(PAPER, [g, g, g], 0.18); }
+    if (cool[i] > 0) c = mix(c, LILAC, Math.min(1, cool[i]));
+    if (heat[i] > 0) c = mix(c, HOT, Math.min(1, heat[i]));
+    img.data.set([...c, 255], i * 4);
+  }
+  ctx.surp.putImageData(img, 0, 0);
+}
+function decay() {
+  for (let i = 0; i < 4096; i++) { if (heat[i] > 0) heat[i] = Math.max(0, heat[i] - 0.012); if (cool[i] > 0) cool[i] = Math.max(0, cool[i] - 0.002); }
+  drawSurprise(); requestAnimationFrame(decay);
+}
+// One transition: wrong changed cells flare hot; changed cells it now gets right cool to lilac.
+function surprise(prev, pred, real) {
+  let wrong = 0, scored = 0;
+  for (let i = 0; i < 4096; i++) {
+    if (real[i] === prev[i] && pred[i] === prev[i]) continue;
+    scored++;
+    if (pred[i] !== real[i]) { heat[i] = 1; cool[i] = 0; wrong++; }
+    else { cool[i] = heat[i] > 0 || cool[i] > 0 ? 1 : 0.6; heat[i] = 0; }
+  }
+  prevSurp = real;
+  return [wrong, scored];
+}
+function meter(gate, full, move, acc) {
+  $("m-gate").textContent = gate; $("m-full").textContent = full; $("m-move").textContent = move;
+  $("m-share").textContent = full ? (100 * gate / full).toFixed(1) + "%" : "-";
+  if (acc !== undefined) $("m-acc").textContent = acc;
+  const top = Math.max(full, 1);
+  $("b-full").style.height = (100 * full / top) + "%"; $("b-gate").style.height = Math.max(1, 100 * gate / top) + "%";
+}
+function caption(html) { $("caption").innerHTML = html; }
+
+// ---- replay of the real run ----------------------------------------------------------------
+const rules = new Map();   // rule key -> {n, tries, learned, missed}
+function ledger(row) {
+  if (!row.rule || row.rule.endsWith(":") || row.acc === null) return null;
+  if (!rules.has(row.rule)) rules.set(row.rule, { n: rules.size + 1, tries: 0, learned: false, missed: false });
+  const r = rules.get(row.rule); r.tries++;
+  if (r.learned) return null;
+  if (row.acc >= 0.8) {
+    r.learned = true;
+    if (!r.missed) {
+      const seen = [...rules.values()].filter(x => x.learned && !x.missed).length;
+      $("onsight").textContent = `+ ${seen} right on sight`; $("onsight").hidden = false;
+      return null;
+    }
+    const el = document.createElement("span");
+    el.className = "tick new";
+    el.textContent = `rule ${r.n} learned after ${r.tries - 1} ${r.tries - 1 === 1 ? "try" : "tries"}`;
+    document.querySelectorAll(".tick.new").forEach(t => t.classList.remove("new"));
+    $("ticks").insertBefore(el, $("onsight"));
+    return el.textContent;
+  }
+  r.missed = true;
+  return null;
+}
+function replayStep(t) {
+  const rows = demo.rows, row = rows[t];
+  const prev = dec(row.prev), pred = dec(row.pred), real = dec(row.real);
+  draw("real", real); draw("pred", pred);
+  const [wrong] = surprise(prev, pred, real);
+  const gate = rows.slice(0, t + 1).reduce((a, r) => a + r.steps, 0);
+  const accs = rows.slice(0, t + 1).filter(r => r.acc !== null).map(r => r.acc);
+  meter(gate, demo.meta.warc_steps * (t + 1), t + 1, accs.length ? (100 * accs.reduce((a, b) => a + b) / accs.length).toFixed(1) + "%" : "-");
+  const tick = ledger(row);
+  const sc = $("scrub").children[t]; sc.classList.add(row.steps ? "on" : "ok");
+  document.querySelectorAll(".scrub .now").forEach(e => e.classList.remove("now")); sc.classList.add("now");
+  if (tick) caption(tick + ".");
+  else if (!row.changed && !wrong) caption("nothing changed. it knew. <b>0</b> steps.");
+  else if (!wrong) caption(`right on all ${row.scored} changed cells. no update.`);
+  else caption(`wrong on <b>${wrong}</b> of ${row.scored} changed cells. ${row.steps} gradient step${row.steps === 1 ? "" : "s"}.`);
+  if (t === 0) caption(`it has never seen ${demo.meta.game}. wrong on <b>${wrong}</b> of ${row.scored} changed cells.`);
+  $("caption").insertAdjacentHTML("beforeend", ` <span class="help">${row.seconds.toFixed(1)} s on CPU</span>`);
+}
+function startReplay() {
+  clearInterval(timer); mode = "replay"; rules.clear(); $("ticks").innerHTML = '<span class="tick seen" id="onsight" hidden></span>'; heat.fill(0); cool.fill(0);
+  $("btn-replay").setAttribute("aria-pressed", "true"); $("btn-play").setAttribute("aria-pressed", "false");
+  const m = demo.meta;
+  $("sub").textContent = `${m.game}, never seen. public human recording ${m.recording.slice(0, 8)}, replayed through ${m.checkpoint}.`;
+  $("m-src").textContent = `real run, ${m.transitions} moves, seed ${m.seed}, ${m.torch} on ${m.cores} CPU cores. wall-clock per move is the real time on this CPU.`;
+  $("scrub").innerHTML = demo.rows.map(() => "<i></i>").join("");
+  const speed = +(new URLSearchParams(location.search).get("ms") || 900);
+  let t = 0; replayStep(t++);
+  timer = setInterval(() => { if (t < demo.rows.length) replayStep(t++); else clearInterval(timer); }, speed);
+}
+
+// ---- play yourself ----------------------------------------------------------------------------
+async function post(path, body) {
+  const r = await fetch(path, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body || {}) });
+  const j = await r.json(); if (!r.ok) throw new Error(j.error); return j;
+}
+async function startPlay() {
+  clearInterval(timer); mode = "play"; heat.fill(0); cool.fill(0); prevSurp = null;
+  $("btn-play").setAttribute("aria-pressed", "true"); $("btn-replay").setAttribute("aria-pressed", "false");
+  caption("loading the game and the model that never saw it...");
+  try { play = await post("/api/play"); } catch (e) { caption("play needs the public games on disk: " + e.message); return; }
+  draw("real", dec(play.frame)); draw("pred", dec(play.frame)); meter(0, 0, 0, "-");
+  $("sub").textContent = `you are playing ${play.game} (public game, run locally). try to surprise it.`;
+  $("m-src").textContent = "live: arrow keys move, space = action 5, click the game for action 6, z = undo, r = reset.";
+  $("ticks").innerHTML = ""; $("scrub").innerHTML = "";
+  caption("your move. arrow keys" + (play.available.includes(6) ? " or click the game." : "."));
+}
+let queued = null;   // one move typed while the model is still learning from the last one
+async function move(kind, x = -1, y = -1) {
+  if (mode !== "play" || !play) return;
+  if (busy) { queued = [kind, x, y]; return; }
+  if (kind !== 0 && !play.available.includes(kind)) { caption(`action ${kind} does nothing in ${play.game}.`); return; }
+  busy = true; const t0 = performance.now();
+  try {
+    const s = await post("/api/move", { kind, x, y });
+    play = s;
+    if (s.reset) { prevSurp = null; draw("real", dec(s.frame)); caption("reset."); return; }
+    const prev = dec(s.prev), pred = dec(s.pred), real = dec(s.frame);
+    draw("pred", pred); draw("real", real);
+    const [wrong, scored] = surprise(prev, pred, real);
+    meter(s.steps, s.full_steps, s.moves, s.acc === null ? "-" : (100 * s.acc).toFixed(0) + "%");
+    const el = document.createElement("i"); el.className = s.update ? "on" : "ok"; $("scrub").append(el);
+    caption(wrong ? `you surprised it on <b>${wrong}</b> of ${scored} cells. it learns: ${s.update} step${s.update === 1 ? "" : "s"}.`
+                  : scored ? `it saw that coming. ${scored} cells, all right. no update.` : "nothing changed. it knew.");
+    $("m-src").textContent = `live: ${Math.round(performance.now() - t0)} ms on this CPU, including any learning still running from your last move.`;
+  } catch (e) { caption(e.message); } finally {
+    busy = false;
+    if (queued) { const q = queued; queued = null; move(...q); }
+  }
+}
+const KEYS = { ArrowUp: 1, ArrowDown: 2, ArrowLeft: 3, ArrowRight: 4, " ": 5, z: 7, r: 0 };
+addEventListener("keydown", e => { if (e.key in KEYS && mode === "play") { e.preventDefault(); move(KEYS[e.key]); } });
+$("real").addEventListener("click", e => {
+  const b = $("real").getBoundingClientRect();
+  move(6, Math.floor(64 * (e.clientX - b.left) / b.width), Math.floor(64 * (e.clientY - b.top) / b.height));
+});
+$("btn-play").onclick = startPlay;
+$("btn-replay").onclick = () => demo && startReplay();
+fetch("/api/demo").then(r => r.json()).then(d => { if (d.error) { caption(d.error); return; } demo = d; startReplay(); });
+requestAnimationFrame(decay);
+</script>
+</body>
+</html>
