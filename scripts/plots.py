@@ -136,7 +136,7 @@ def per_game(s):
 
 
 def timing(smoke):
-    """Wall-clock from the dedicated smoke run (one process, every core), which hypothesis part 4 is judged on."""
+    """Wall-clock from the dedicated smoke run (one process, every core); part 4 uses the evaluation rate."""
     lines = ["| arm | seconds per transition | transitions/s | gradient steps |", "| --- | --- | --- | --- |"]
     for arm in ARMS:
         f = next(Path(smoke).glob(f"*_{arm}_s0.json"), None)

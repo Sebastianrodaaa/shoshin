@@ -31,10 +31,12 @@ Each run replays the first T transitions of the first recording (by file name) o
 
 **Commit, compare, learn** (`shoshin/gate.py`). Before each transition the model predicts the next frame. Scored
 cells are the cells that changed in reality or in the prediction. Wrong cells are scored cells where the guess
-differs from reality. Changed-cell accuracy is 1 minus wrong/scored (undefined when nothing is scored). The update
-budget is `ceil(5 * wrong / scored)` steps, zero when nothing is wrong; 5 is a quarter of WARC's 20, so a single
+differs from reality. The update budget is `ceil(5 * wrong / scored)` steps, zero when nothing is wrong; 5 is a quarter of WARC's 20, so a single
 transition can never cost more than 25% of the every-move recipe. Each step trains on the new transition plus a
 replay buffer of up to 64 earlier surprises, using WARC's loss, augmentation views and Muon + AdamW optimiser.
+`wrong / scored` only sets the step budget. The reported changed-cell accuracy (`changed_accuracy`, the `acc` field in
+the logs) is computed on a different mask: the share of cells that changed in reality (`real != prev`) where the guess
+equals reality. It is undefined when nothing changed, and it ignores cells the model wrongly predicted would change.
 
 **Arms** (`shoshin/run.py`). frozen; full WARC (20 steps after every transition, WARC's replay); surprise-gated;
 surprise-gated without the surprise buffer (forgetting ablation); random-skip, which gets exactly the gated run's
@@ -93,8 +95,9 @@ Per game (changed-cell accuracy %, mean over seeds, and gradient steps):
 <!-- pergame:end -->
 
 **Wall-clock.** The evaluation ran three processes side by side, two threads each, so its per-transition times are
-slower than one process on the whole machine. Hypothesis part 4 is judged on the dedicated smoke run (ft09, 20
-transitions, seed 0, one process, 8 threads):
+slower than one process on the whole machine. The hypothesis table judges part 4 on the evaluation rate in the
+results table (surprise-gated 0.09 transitions/s). The dedicated smoke run below (ft09, 20 transitions, seed 0, one
+process, 8 threads) is the best case on this box, and it also misses the bar:
 
 <!-- timing:start -->
 | arm | seconds per transition | transitions/s | gradient steps |
@@ -116,7 +119,8 @@ transitions, seed 0, one process, 8 threads):
    "within 2 points". **Fails.**
 2. Compute: it spends 14.2% of the full recipe's gradient steps (410 vs 2880). The bar was "at most 25%". **Holds.**
 3. Control: it beats random-skip with the identical step list by 4.7 points (95% CI +1.6 to +8.1). **Holds.**
-4. Speed: about 0.2 transitions per second on this 8-vCPU box, against a bar of 1 (see the timing table). One
+4. Speed: 0.09 transitions per second in the evaluation (the number the hypothesis table uses), and 0.19 in the
+   dedicated single-process smoke run on this 8-vCPU box, against a bar of 1. One
    batch-1 WARC update costs about 1.5 s here, so any update at all already misses the bar. **Fails.**
 
 The gate is not the problem: it learns from the right transitions, because the same budget spent at random does
