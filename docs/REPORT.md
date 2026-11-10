@@ -55,11 +55,41 @@ better. It is a proxy, not WARC's MechEval (the annotations were not released as
 ## Results
 
 <!-- results:start -->
+| arm | changed-cell accuracy % (95% CI) | gradient steps | share of full | transitions/s | EtC proxy |
+| --- | --- | --- | --- | --- | --- |
+| frozen (no learning) | 27.6 (23.0 to 32.3) | 0 | 0.0% | 2.39 | 1.8 (10.0% reach) |
+| full WARC (20 steps every move) | 61.1 (54.1 to 67.5) | 2880 | 100.0% | 0.01 | 3.5 (48.7% reach) |
+| surprise-gated | 53.9 (47.5 to 60.3) | 410 | 14.2% | 0.09 | 3.4 (44.8% reach) |
+| surprise-gated, no replay | 53.3 (46.9 to 59.4) | 416 | 14.5% | 0.08 | 5.1 (37.6% reach) |
+| random-skip, matched updates | 49.3 (42.7 to 56.1) | 410 | 14.2% | 0.09 | 4.8 (44.3% reach) |
+
+| comparison | difference, points (95% CI) |
+| --- | --- |
+| gated minus full | -7.2 (-11.4 to -3.4) |
+| gated minus random | +4.7 (+1.6 to +8.1) |
+| gated minus noreplay | +0.6 (-2.1 to +3.6) |
+| full minus frozen | +33.5 (+27.6 to +39.2) |
+
+| hypothesis part | holds |
+| --- | --- |
+| 1 accuracy within 2 points of full (CI lower bound > -0.02) | no |
+| 2 at most 25% of full gradient steps | yes |
+| 3 beats matched random-skip (CI lower bound > 0) | yes |
+| 4 at least 1 transition per second | no |
+| holds | no |
 <!-- results:end -->
 
 Per game (changed-cell accuracy %, mean over seeds, and gradient steps):
 
 <!-- pergame:start -->
+| game | fold | frozen (no learning) | full WARC (20 steps every move) | surprise-gated | surprise-gated, no replay | random-skip, matched updates |
+| --- | --- | --- | --- | --- | --- | --- |
+| bp35 | fold1 | 3.6 (0 steps) | 66.9 (480 steps) | 51.4 (76 steps) | 51.3 (76 steps) | 49.2 (76 steps) |
+| cn04 | fold2 | 56.2 (0 steps) | 70.8 (480 steps) | 70.8 (50 steps) | 71.3 (52 steps) | 68.4 (50 steps) |
+| ft09 | fold3 | 0.0 (0 steps) | 57.2 (480 steps) | 51.0 (62 steps) | 49.6 (64 steps) | 36.9 (62 steps) |
+| g50t | fold3 | 60.3 (0 steps) | 68.4 (480 steps) | 68.7 (52 steps) | 60.8 (60 steps) | 64.6 (52 steps) |
+| m0r0 | fold2 | 45.6 (0 steps) | 67.2 (480 steps) | 65.9 (59 steps) | 66.8 (56 steps) | 59.8 (59 steps) |
+| r11l | fold1 | 0.0 (0 steps) | 36.1 (480 steps) | 15.7 (110 steps) | 20.1 (108 steps) | 16.7 (110 steps) |
 <!-- pergame:end -->
 
 **Wall-clock.** The evaluation ran three processes side by side, two threads each, so its per-transition times are
@@ -67,13 +97,37 @@ slower than one process on the whole machine. Hypothesis part 4 is judged on the
 transitions, seed 0, one process, 8 threads):
 
 <!-- timing:start -->
+| arm | seconds per transition | transitions/s | gradient steps |
+| --- | --- | --- | --- |
+| frozen (no learning) | 0.29 | 3.496 | 0 |
+| full WARC (20 steps every move) | 43.94 | 0.023 | 400 |
+| surprise-gated | 5.18 | 0.193 | 56 |
+| surprise-gated, no replay | 5.73 | 0.174 | 54 |
+| random-skip, matched updates | 5.80 | 0.172 | 56 |
 <!-- timing:end -->
 
 ![accuracy and compute](screenshots/results.png)
 
 ## Verdict
 
-VERDICT
+**The hypothesis fails.** Over six held-out games, 24 transitions each, and 3 seeds:
+
+1. Accuracy: surprise-gated is 7.2 points behind the full every-move recipe (95% CI -11.4 to -3.4). The bar was
+   "within 2 points". **Fails.**
+2. Compute: it spends 14.2% of the full recipe's gradient steps (410 vs 2880). The bar was "at most 25%". **Holds.**
+3. Control: it beats random-skip with the identical step list by 4.7 points (95% CI +1.6 to +8.1). **Holds.**
+4. Speed: about 0.2 transitions per second on this 8-vCPU box, against a bar of 1 (see the timing table). One
+   batch-1 WARC update costs about 1.5 s here, so any update at all already misses the bar. **Fails.**
+
+The gate is not the problem: it learns from the right transitions, because the same budget spent at random does
+worse, and the few steps it spends buy most of the full recipe's gain over frozen (+26.3 of +33.5 points). The cost is
+the 85% of steps it skips: on these recordings, the extra steps on already-predicted moves are not wasted. The gap
+sits mostly in two games, r11l (-20.4) and bp35 (-15.5). On cn04, g50t and m0r0 gated matches full within about one
+point. The replay buffer did not measurably help over 24 transitions (+0.6, CI -2.1 to +3.6); forgetting needs
+longer runs to show up.
+
+The every-move recipe is not cheap on CPU either (about 0.03 transitions per second), so gating is still the only
+arm of the two that is anywhere near interactive. It is short of the bar.
 
 ## Related work
 

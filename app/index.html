@@ -226,7 +226,7 @@ async function move(kind, x = -1, y = -1) {
     const [wrong, scored] = surprise(prev, pred, real);
     meter(s.steps, s.full_steps, s.moves, s.acc === null ? "-" : (100 * s.acc).toFixed(0) + "%");
     const el = document.createElement("i"); el.className = s.update ? "on" : "ok"; $("scrub").append(el);
-    caption(wrong ? `you surprised it on <b>${wrong}</b> of ${scored} cells. it learns: ${s.update} steps.`
+    caption(wrong ? `you surprised it on <b>${wrong}</b> of ${scored} cells. it learns: ${s.update} step${s.update === 1 ? "" : "s"}.`
                   : scored ? `it saw that coming. ${scored} cells, all right. no update.` : "nothing changed. it knew.");
     $("m-src").textContent = `live: ${Math.round(performance.now() - t0)} ms on this CPU, including any learning still running from your last move.`;
   } catch (e) { caption(e.message); } finally {

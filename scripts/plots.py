@@ -151,8 +151,8 @@ def splice(path, text, key="results"):
     """Replace the block between <!-- key:start/end --> markers (idempotent, so `make repro` regenerates it)."""
     p = ROOT / path
     if p.exists():
-        pat = rf"(<!-- {key}:start -->\n).*?(\n<!-- {key}:end -->)"
-        p.write_text(re.sub(pat, lambda m: m[1] + text + m[2], p.read_text(), flags=re.S))
+        pat = rf"(<!-- {key}:start -->\n).*?(<!-- {key}:end -->)"
+        p.write_text(re.sub(pat, lambda m: m[1] + text.rstrip("\n") + "\n" + m[2], p.read_text(), flags=re.S))
 
 
 def plot(s, data, out):

@@ -1,0 +1,318 @@
+{
+ "games": [
+  "bp35",
+  "cn04",
+  "ft09",
+  "g50t",
+  "m0r0",
+  "r11l"
+ ],
+ "arms": {
+  "frozen": {
+   "acc": 0.27609051673943447,
+   "acc_ci": [
+    0.2296170678460454,
+    0.3232920559402866
+   ],
+   "steps": 0.0,
+   "seconds_per_transition": 0.4189208410764074,
+   "transitions_per_second": 2.3870858213463984,
+   "etc_mean": 1.75,
+   "etc_reach": 0.09999999999999999
+  },
+  "full": {
+   "acc": 0.6110515155770364,
+   "acc_ci": [
+    0.5414161903161655,
+    0.6749479360998727
+   ],
+   "steps": 2880.0,
+   "seconds_per_transition": 78.08225776625694,
+   "transitions_per_second": 0.012807006720957645,
+   "etc_mean": 3.537037037037037,
+   "etc_reach": 0.48730158730158724
+  },
+  "gated": {
+   "acc": 0.5392520249759504,
+   "acc_ci": [
+    0.4749342332198601,
+    0.6026574378352498
+   ],
+   "steps": 410.0,
+   "seconds_per_transition": 11.173135150305614,
+   "transitions_per_second": 0.08950039416400038,
+   "etc_mean": 3.4294871794871797,
+   "etc_reach": 0.44814814814814813
+  },
+  "noreplay": {
+   "acc": 0.5331841854521465,
+   "acc_ci": [
+    0.4694453009588568,
+    0.5944735749768019
+   ],
+   "steps": 416.3333333333333,
+   "seconds_per_transition": 11.76686657690511,
+   "transitions_per_second": 0.08498439184843866,
+   "etc_mean": 5.09375,
+   "etc_reach": 0.37645502645502643
+  },
+  "random": {
+   "acc": 0.4925461831719202,
+   "acc_ci": [
+    0.4274746170978293,
+    0.5610184963329011
+   ],
+   "steps": 410.0,
+   "seconds_per_transition": 11.49675739908794,
+   "transitions_per_second": 0.08698104737596114,
+   "etc_mean": 4.766666666666666,
+   "etc_reach": 0.44259259259259254
+  }
+ },
+ "per_game": {
+  "bp35": {
+   "fold": "fold1",
+   "frozen": {
+    "acc": 0.03591662958712854,
+    "steps": 0.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "full": {
+    "acc": 0.6693036194880215,
+    "steps": 480.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "gated": {
+    "acc": 0.5143074847673185,
+    "steps": 76.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "noreplay": {
+    "acc": 0.5129230597533472,
+    "steps": 76.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "random": {
+    "acc": 0.4924777217002689,
+    "steps": 76.0,
+    "seeds": 3,
+    "transitions": 24
+   }
+  },
+  "cn04": {
+   "fold": "fold2",
+   "frozen": {
+    "acc": 0.5618197172471009,
+    "steps": 0.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "full": {
+    "acc": 0.7078522602581296,
+    "steps": 480.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "gated": {
+    "acc": 0.7082543429505083,
+    "steps": 50.333333333333336,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "noreplay": {
+    "acc": 0.713425725107923,
+    "steps": 52.333333333333336,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "random": {
+    "acc": 0.6837017618149912,
+    "steps": 50.333333333333336,
+    "seeds": 3,
+    "transitions": 24
+   }
+  },
+  "ft09": {
+   "fold": "fold3",
+   "frozen": {
+    "acc": 0.0,
+    "steps": 0.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "full": {
+    "acc": 0.5723684210526315,
+    "steps": 480.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "gated": {
+    "acc": 0.5096491228070176,
+    "steps": 62.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "noreplay": {
+    "acc": 0.4956140350877193,
+    "steps": 64.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "random": {
+    "acc": 0.36885964912280694,
+    "steps": 62.0,
+    "seeds": 3,
+    "transitions": 24
+   }
+  },
+  "g50t": {
+   "fold": "fold3",
+   "frozen": {
+    "acc": 0.6025750908391567,
+    "steps": 0.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "full": {
+    "acc": 0.6842580023556524,
+    "steps": 480.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "gated": {
+    "acc": 0.6869499660316047,
+    "steps": 52.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "noreplay": {
+    "acc": 0.6076979660932573,
+    "steps": 60.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "random": {
+    "acc": 0.6455728116320705,
+    "steps": 52.0,
+    "seeds": 3,
+    "transitions": 24
+   }
+  },
+  "m0r0": {
+   "fold": "fold2",
+   "frozen": {
+    "acc": 0.4558231660311945,
+    "steps": 0.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "full": {
+    "acc": 0.6718933157428301,
+    "steps": 480.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "gated": {
+    "acc": 0.6593348040507739,
+    "steps": 59.333333333333336,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "noreplay": {
+    "acc": 0.668455799365769,
+    "steps": 55.666666666666664,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "random": {
+    "acc": 0.5980481222918127,
+    "steps": 59.333333333333336,
+    "seeds": 3,
+    "transitions": 24
+   }
+  },
+  "r11l": {
+   "fold": "fold1",
+   "frozen": {
+    "acc": 0.0004084967320261438,
+    "steps": 0.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "full": {
+    "acc": 0.36063347456495354,
+    "steps": 480.0,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "gated": {
+    "acc": 0.157016429248479,
+    "steps": 110.33333333333333,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "noreplay": {
+    "acc": 0.2009885273048635,
+    "steps": 108.33333333333333,
+    "seeds": 3,
+    "transitions": 24
+   },
+   "random": {
+    "acc": 0.16661703246957138,
+    "steps": 110.33333333333333,
+    "seeds": 3,
+    "transitions": 24
+   }
+  }
+ },
+ "comparisons": {
+  "gated-full": {
+   "diff": -0.07179949060108616,
+   "ci": [
+    -0.1140710776541357,
+    -0.033756524532397095
+   ]
+  },
+  "gated-random": {
+   "diff": 0.04670584180403001,
+   "ci": [
+    0.016051714126394872,
+    0.08069905672801443
+   ]
+  },
+  "gated-noreplay": {
+   "diff": 0.006067839523803717,
+   "ci": [
+    -0.021427637045143874,
+    0.035936986672638366
+   ]
+  },
+  "full-frozen": {
+   "diff": 0.3349609988376021,
+   "ci": [
+    0.27647589448025883,
+    0.39235927414365096
+   ]
+  }
+ },
+ "hypothesis": {
+  "1 accuracy within 2 points of full (CI lower bound > -0.02)": false,
+  "2 at most 25% of full gradient steps": true,
+  "3 beats matched random-skip (CI lower bound > 0)": true,
+  "4 at least 1 transition per second": false,
+  "holds": false
+ },
+ "setup": {
+  "transitions": 24,
+  "minibatch": 1,
+  "warc_steps": 20,
+  "torch": "2.7.0+cpu",
+  "threads": 2,
+  "cores": 8,
+  "data": "ARC-AGI-3 Public Demo human recording (ARC Prize Foundation)"
+ }
+}

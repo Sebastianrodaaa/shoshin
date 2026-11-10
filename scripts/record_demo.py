@@ -81,6 +81,7 @@ def main():
     shutil.copy(SHOTS / "meter.png", SHOTS / "hero.png")
     lines = ["# Shot log (real run, recorded by scripts/record_demo.py)", "",
              "Source: `shoshin-demo.mp4`, 1920x1080, 30 fps, no audio. Captions are on screen.", "",
+             "The play-yourself segment is real time: each arrow key waits until the model has finished learning from the previous move on this CPU, while Chromium records 1080p video on the same cores. Cut it down in the edit.", "",
              "| from (s) | to (s) | shot |", "| --- | --- | --- |"]
     for (a, text), (b, _) in zip(log, log[1:]):
         lines.append(f"| {a:.1f} | {b:.1f} | {text} |")
